@@ -29,23 +29,30 @@ webSocketServer.on('connection',(socket,req)=>{
     const user = req.url?.slice(1) as string
     clients[user] = socket
     clients[user].on('message',(rawMsg)=>{
-        let msg = JSON.parse(rawMsg.toString())
-        // console.log(msg)
-        if(msg.type === 'cmd'){
-            switch(msg.cmd) {
-                case "ls" :
-                    const allUser = JSON.stringify(Object.keys(clients))
-                    socket.send(allUser)
-                    break;
-                case "send":
-                    console.log(msg.name[0])
-                    clients[msg.to].send(`hi this is me from ${msg.name[0]}`)
-                    break;
-                default :
-                    break
-            } 
-        } else if(msg.type === 'msg'){
-            socket.send('response from the server')
+        console.log(rawMsg.toString())
+        let clientMsg = JSON.parse(rawMsg.toString())
+        if(clientMsg.type === 'cmd'){
+            const {msg} = clientMsg
+            if(msg === 'ls'){
+                const msgToClient = {
+                    'type' : 'cmd',
+                    'msg' : JSON.stringify(Object.keys(clients))
+                }
+                clients[user].send(JSON.stringify(msgToClient))
+            }
+        } else if(clientMsg.type === 'msg'){
+            const {msg,uid,to} = clientMsg
+            const msgToClient = {
+                'type' : 'msg',
+                'msg' : msg,
+                'from' : uid,
+                'to' : to,
+            }
+            if(clients[to]){
+                clients[to].send(JSON.stringify(msgToClient))
+            }
+        } else {
+
         }
     })
     clients[user].on('close',(code)=>{
