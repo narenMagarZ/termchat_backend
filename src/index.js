@@ -1,7 +1,8 @@
-import {WebSocketServer} from 'ws'
-import http from 'node:http'
-import dotenv from 'dotenv'
-import {parse} from 'node:url'
+
+const {WebSocketServer} = require('ws')
+const http = require('node:http')
+const dotenv = require('dotenv')
+const {parse} = require('node:url')
 dotenv.config()
 
 let clients = {}
@@ -11,13 +12,13 @@ const httpServer = http.createServer((req,res)=>{
         return res.end("done ")
     } else {
 
-        const parsedUrl = parse(req.url as string,true)
+        const parsedUrl = parse(req.url,true)
         const {id} = parsedUrl.query
-        let isUidInUser = clients[id as string] ? 'true' : 'false'
+        let isUidInUser = clients[id] ? 'true' : 'false'
         res.end(isUidInUser)
     }
 
-    }).listen(process.env.PORT as string,()=>{
+    }).listen(process.env.PORT,()=>{
     log('serveer is running on port',process.env.PORT)
     })
 
@@ -32,7 +33,7 @@ httpServer.on('upgrade',(req,socket,head)=>{
 
 
 webSocketServer.on('connection',(socket,req)=>{
-    const user = req.url?.slice(1) as string
+    const user = req.url?.slice(1)
     clients[user] = socket
     clients[user].on('message',(rawMsg)=>{
         console.log(rawMsg.toString())
