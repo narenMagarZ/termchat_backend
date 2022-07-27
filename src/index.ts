@@ -7,10 +7,16 @@ dotenv.config()
 let clients = {}
 const log = console.log
 const httpServer = http.createServer((req,res)=>{
-    const parsedUrl = parse(req.url as string,true)
-    const {id} = parsedUrl.query
-    let isUidInUser = clients[id as string] ? 'true' : 'false'
-    res.end(isUidInUser)
+    if(req.url === '/test'){
+        return res.end("done ")
+    } else {
+
+        const parsedUrl = parse(req.url as string,true)
+        const {id} = parsedUrl.query
+        let isUidInUser = clients[id as string] ? 'true' : 'false'
+        res.end(isUidInUser)
+    }
+
     }).listen(process.env.PORT as string,()=>{
     log('serveer is running on port',process.env.PORT)
     })
